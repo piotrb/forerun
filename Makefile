@@ -9,7 +9,7 @@ endif
 temp = $(subst /, ,$@)
 os = $(word 1, $(temp))
 arch = $(word 2, $(temp))
-name = aws-ssm-env
+name = forerun
 longname = $(name)-$(TAG)-$(os)-$(arch)
 
 release: $(PLATFORMS)
