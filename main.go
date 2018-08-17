@@ -68,6 +68,10 @@ func main() {
 	cmd := commandPrep(words...)
 	fmt.Printf("[forerun] Running command: %v ...\n", words)
 
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+
 	err := cmd.Run()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "[forerun] Command failed - %v\n", err)
