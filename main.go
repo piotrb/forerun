@@ -9,7 +9,6 @@ import (
 
 	"github.com/kballard/go-shellquote"
 	"github.com/subosito/gotenv"
-	"github.com/piotrb/forerun/forego"
 )
 
 type Config map[string]string
@@ -31,7 +30,6 @@ func ReadConfig(filename string) (Config, error) {
 	return config, nil
 }
 
-
 func commandPrep(parts ...string) *exec.Cmd {
 	command := parts[0]
 	remainingParts := parts[1:len(parts)]
@@ -41,7 +39,7 @@ func commandPrep(parts ...string) *exec.Cmd {
 func main() {
 	flag.Parse()
 
-	config, error := forego.ReadConfig("Procfile")
+	config, error := ReadConfig("Procfile")
 	if error != nil {
 		fmt.Fprintf(os.Stderr, "[forerun] Failed reading Procfile: %v\n", error)
 		os.Exit(1)
