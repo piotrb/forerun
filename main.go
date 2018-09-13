@@ -7,10 +7,10 @@ import (
 	"os/exec"
 	"reflect"
 
-	"github.com/kballard/go-shellquote"
 	"github.com/subosito/gotenv"
 )
 
+// Config type based on what is in the Procfile
 type Config map[string]string
 
 // ReadConfig from https://github.com/ddollar/forego
@@ -59,11 +59,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	words, error := shellquote.Split(cmdString)
-	if error != nil {
-		fmt.Fprintf(os.Stderr, "[forerun] Failed parsing command: %+v", error)
-		os.Exit(1)
-	}
+	words := []string{"/bin/bash", "-c", cmdString}
 
 	cmd := commandPrep(words...)
 	fmt.Printf("[forerun] Running command: %v ...\n", words)
