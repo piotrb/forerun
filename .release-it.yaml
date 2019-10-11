@@ -1,0 +1,4 @@
+github:
+  release: true
+  assets:
+    - bin/*/*.zip
