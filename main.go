@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"reflect"
+	"syscall"
 
 	"github.com/subosito/gotenv"
 )
@@ -59,7 +60,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	words := []string{"/bin/bash", "-c", cmdString}
+	words := []string{"/bin/bash", "-c", fmt.Sprintf("exec %s", cmdString)}
 
 	cmd := commandPrep(words...)
 	fmt.Printf("[forerun] Running command: %v ...\n", words)
@@ -68,9 +69,10 @@ func main() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
+	handleSingnals("forerun", []os.Signal{syscall.SIGINT, syscall.SIGTERM}, func(signal os.Signal) {
+		// do nothing
+	})
+
 	err := cmd.Run()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "[forerun] Command failed - %v\n", err)
-		os.Exit(1)
-	}
+	handleCmdExit(cmd, err, "[forerun] ")
 }
