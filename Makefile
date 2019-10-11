@@ -1,5 +1,5 @@
 # credit: https://vic.demuzere.be/articles/golang-makefile-crosscompile/
-PLATFORMS := darwin/386 darwin/amd64 linux/386 linux/amd64 windows/386 windows/amd64
+PLATFORMS := darwin/386 darwin/amd64 linux/386 linux/amd64
 
 checkenv:
 ifndef TAG
@@ -18,4 +18,7 @@ $(PLATFORMS): checkenv
 	GOOS=$(os) GOARCH=$(arch) go build -o 'bin/$(longname)/$(name)' main.go
 	cd bin/$(longname) && zip $(longname).zip $(name)
 
-.PHONY: checkenv release $(PLATFORMS) zip
+clean:
+	rm -rvf bin/*
+
+.PHONY: checkenv release $(PLATFORMS) clean
