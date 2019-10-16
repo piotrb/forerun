@@ -11,7 +11,7 @@ import (
 	"strings"
 	"syscall"
 
-	shellwords "github.com/mattn/go-shellwords"
+	shellwords "github.com/buildkite/shellwords"
 )
 
 // Config type based on what is in the Procfile
@@ -45,7 +45,7 @@ func commandPrep(parts ...string) *exec.Cmd {
 }
 
 func envFromCmd(cmd string) ([]string, string, error) {
-	words, err := shellwords.Parse(cmd)
+	words, err := shellwords.Split(cmd)
 	if err != nil {
 		return nil, cmd, fmt.Errorf("Failed parsing command words: %v", err)
 	}
@@ -70,6 +70,8 @@ func envFromCmd(cmd string) ([]string, string, error) {
 }
 
 func main() {
+	var useExec = true
+
 	flag.Parse()
 
 	config, error := readProcfile("Procfile")
@@ -98,7 +100,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	words := []string{"/bin/bash", "-c", fmt.Sprintf("exec %s", newCmdString)}
+	match, _ := regexp.MatchString("(;|&&|\\|\\|)", newCmdString)
+	if match {
+		useExec = false
+		fmt.Printf("found complex command string, not using exec ...\n")
+	}
+
+	if useExec {
+		newCmdString = fmt.Sprintf("exec %s", newCmdString)
+	}
+
+	words := []string{"/bin/bash", "-c", newCmdString}
 
 	cmd := commandPrep(words...)
 	env := append(os.Environ(), additionalEnv...)
