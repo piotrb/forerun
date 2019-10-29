@@ -140,8 +140,13 @@ func main() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true,
+	}
+
 	handleSingnals("forerun", handledSignals, func(signal os.Signal) {
-		// do nothing
+		log.Printf("Relaying %v to child pid: %v", signal, cmd.Process.Pid)
+		cmd.Process.Signal(signal)
 	})
 
 	err := cmd.Run()
