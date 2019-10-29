@@ -1,9 +1,8 @@
 # credit: https://vic.demuzere.be/articles/golang-makefile-crosscompile/
 PLATFORMS := darwin/386 darwin/amd64 linux/386 linux/amd64
 
-checkenv:
 ifndef TAG
-	$(error release TAG is required - e.g v0.1.0)
+	TAG = ${shell git describe}
 endif
 
 temp = $(subst /, ,$@)
@@ -12,9 +11,9 @@ arch = $(word 2, $(temp))
 name = forerun
 longname = $(name)-$(TAG)-$(os)-$(arch)
 
-release: $(PLATFORMS)
+release: clean $(PLATFORMS)
 
-$(PLATFORMS): checkenv
+$(PLATFORMS):
 	GOOS=$(os) GOARCH=$(arch) go build -o 'bin/$(longname)/$(name)' .
 	cd bin/$(longname) && zip $(longname).zip $(name)
 
