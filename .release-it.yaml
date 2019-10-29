@@ -2,3 +2,5 @@ github:
   release: true
   assets:
     - bin/*/*.zip
+hooks:
+  "after:bump": "make release"
