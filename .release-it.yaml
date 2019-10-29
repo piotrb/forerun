@@ -3,4 +3,4 @@ github:
   assets:
     - bin/*/*.zip
 hooks:
-  "after:bump": "make release"
+  "after:git:release": "make release"
