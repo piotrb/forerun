@@ -14,6 +14,16 @@ import (
 	shellwords "github.com/buildkite/shellwords"
 )
 
+var handledSignals = []os.Signal{
+	syscall.SIGINT,
+	syscall.SIGHUP,
+	syscall.SIGTERM,
+	syscall.SIGTTIN,
+	syscall.SIGTTOU,
+	syscall.SIGUSR1,
+	syscall.SIGUSR2,
+}
+
 // Config type based on what is in the Procfile
 type Config map[string]string
 
@@ -126,7 +136,7 @@ func main() {
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 
-	handleSingnals("forerun", []os.Signal{syscall.SIGINT, syscall.SIGTERM}, func(signal os.Signal) {
+	handleSingnals("forerun", handledSignals, func(signal os.Signal) {
 		// do nothing
 	})
 
