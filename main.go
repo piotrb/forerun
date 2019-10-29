@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"os/exec"
 	"reflect"
@@ -26,6 +27,8 @@ var handledSignals = []os.Signal{
 
 // Config type based on what is in the Procfile
 type Config map[string]string
+
+var version = "unspecified"
 
 // read Procfile and parse it.
 func readProcfile(procfile string) (Config, error) {
@@ -80,19 +83,21 @@ func envFromCmd(cmd string) ([]string, string, error) {
 }
 
 func main() {
+	initLog("forerun")
+
+	log.Printf("Version: %v\n", version)
+
 	var useExec = true
 
 	flag.Parse()
 
 	config, error := readProcfile("Procfile")
 	if error != nil {
-		fmt.Fprintf(os.Stderr, "[forerun] Failed reading Procfile: %v\n", error)
-		os.Exit(1)
+		log.Fatalf("Failed reading Procfile: %v\n", error)
 	}
 
 	if len(flag.Args()) == 0 {
-		fmt.Fprintf(os.Stderr, "[forerun] Missing task name parameter\n")
-		os.Exit(1)
+		log.Fatalf("Missing task name parameter\n")
 	}
 
 	requestedCmd := flag.Args()[0]
@@ -100,23 +105,22 @@ func main() {
 	cmdString, ok := config[requestedCmd]
 	if !ok {
 		keys := reflect.ValueOf(config).MapKeys()
-		fmt.Fprintf(os.Stderr, "[forerun] Entry not found in Procfile: %v (valid commands: %v)\n", requestedCmd, keys)
-		os.Exit(1)
+		log.Fatalf("Entry not found in Procfile: %v (valid commands: %v)\n", requestedCmd, keys)
 	}
 
 	additionalEnv, newCmdString, addEnvErr := envFromCmd(cmdString)
 	if addEnvErr != nil {
-		fmt.Fprintf(os.Stderr, "Failed getting additional env: %v", addEnvErr)
-		os.Exit(1)
+		log.Fatalf("Failed getting additional env: %v", addEnvErr)
 	}
 
 	match, _ := regexp.MatchString("(;|&&|\\|\\|)", newCmdString)
 	if match {
 		useExec = false
-		fmt.Printf("found complex command string, not using exec ...\n")
+		log.Printf("found complex command string, not using exec ...\n")
 	}
 
 	if useExec {
+		log.Printf("Running command using exec ...\n")
 		newCmdString = fmt.Sprintf("exec %s", newCmdString)
 	}
 
@@ -125,9 +129,9 @@ func main() {
 	cmd := commandPrep(words...)
 	env := append(os.Environ(), additionalEnv...)
 
-	fmt.Printf("[forerun] Running command: %v ...\n", words)
+	log.Printf("Running command: %v ...\n", words)
 	if len(additionalEnv) > 0 {
-		fmt.Printf("[forerun] Additional env: %v\n", additionalEnv)
+		log.Printf("Additional env: %v\n", additionalEnv)
 	}
 
 	cmd.Env = env

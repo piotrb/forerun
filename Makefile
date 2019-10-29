@@ -14,7 +14,7 @@ longname = $(name)-$(TAG)-$(os)-$(arch)
 release: clean $(PLATFORMS)
 
 $(PLATFORMS):
-	GOOS=$(os) GOARCH=$(arch) go build -o 'bin/$(longname)/$(name)' .
+	GOOS=$(os) GOARCH=$(arch) go build -ldflags "-X main.version=$(TAG)" -o 'bin/$(longname)/$(name)' .
 	cd bin/$(longname) && zip $(longname).zip $(name)
 
 clean:

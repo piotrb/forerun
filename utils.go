@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -49,4 +50,9 @@ func handleCmdExit(cmd *exec.Cmd, err error, prefix string) {
 	if err != nil {
 		os.Exit(1)
 	}
+}
+
+func initLog(progname string) {
+	log.SetPrefix(fmt.Sprintf("[%s]: ", progname))
+	log.SetFlags(0)
 }
