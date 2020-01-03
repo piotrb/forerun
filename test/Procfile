@@ -1,0 +1,8 @@
+web: echo "web ran"
+complex: ls && sleep 1 && echo "hi"
+complex_exit: ls && sleep 1 && echo "hi" && exit 1
+simple_exit: false
+kill_shell: bash sleeper.sh 4 $PORT
+vars: FOO=hello echo "$FOO"
+cd: cd bin; ls
+long: sleep 1000
